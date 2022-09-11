@@ -1,0 +1,5 @@
+rootProject.name = 'multi-module-exception'
+include 'app-web'
+include 'domain'
+include 'store-jpa'
+

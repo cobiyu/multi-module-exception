@@ -1,0 +1,92 @@
+buildscript {
+    ext {
+        springBootVersion = '2.5.3.RELEASE'
+        lombokVersion = "1.18.22"
+        mockitoVersion = "3.5.13"
+        mockWebServerVersion = "4.9.3"
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE'
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.5.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'com.github.node-gradle.node' version '3.1.0'
+    id 'java'
+}
+
+allprojects {
+    group 'com.cobi.order'
+}
+
+bootJar.enabled = false
+jar.enabled = false
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+subprojects {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java-library'
+
+    sourceCompatibility = JavaVersion.VERSION_11
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        implementation "org.springframework.boot:spring-boot-configuration-processor"
+        implementation "org.projectlombok:lombok:${lombokVersion}"
+
+        testImplementation "org.junit.jupiter:junit-jupiter-engine"
+        testImplementation "org.junit.jupiter:junit-jupiter-api"
+        testImplementation "org.mockito:mockito-junit-jupiter"
+        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+        testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
+        testImplementation ("org.springframework.boot:spring-boot-starter-test") {
+            exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+            exclude module: "junit"
+        }
+
+        annotationProcessor(
+                "org.springframework.boot:spring-boot-configuration-processor",
+                "org.projectlombok:lombok:${lombokVersion}"
+        )
+        testAnnotationProcessor(
+                "org.springframework.boot:spring-boot-configuration-processor",
+                "org.projectlombok:lombok:${lombokVersion}"
+        )
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    sourceSets {
+        main.java.srcDirs += "$buildDir/generated"
+    }
+
+    clean {
+        delete file('src/main/generated')
+    }
+}
